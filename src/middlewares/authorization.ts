@@ -5,6 +5,9 @@ export async function expressAuthentication(
     securityName: string,
     scopes?: string[]
 ): Promise<void> {
-    // JWT Strategy
+    const token = request.headers['authorization'];
+    if (!token || token !== 'valid-token') {
+        throw new Error('Unauthorized');
+    }
 }
 
