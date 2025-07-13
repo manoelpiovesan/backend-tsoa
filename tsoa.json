@@ -12,16 +12,20 @@
     "outputDirectory": "build",
     "specVersion": 3,
     "securityDefinitions": {
-      "BearerAuth": {
+      "jwt": {
         "type": "apiKey",
         "name": "Authorization",
         "in": "header",
-        "description": "Insira o token JWT no formato: Bearer {token}"
+        "description": "Insert a valid JWT token in the format `Bearer <token>`",
+        "scopes": {
+          "read": "Allows reading data",
+          "write": "Allows writing data"
+        }
       }
     },
     "security": [
       {
-        "BearerAuth": []
+        "jwt": []
       }
     ]
   },

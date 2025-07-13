@@ -1,4 +1,5 @@
-import {Sequelize} from 'sequelize';
+import {Sequelize} from 'sequelize-typescript';
+import {User} from '../models/user';
 
 const dbUser = process.env.DB_USER || 'admin';
 const dbPass = process.env.DB_PASS || 'password';
@@ -9,7 +10,9 @@ const dbKind = process.env.DB_KIND || 'postgres';
 
 const dbUrl = `${dbKind}://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
 
-export const sequelize = new Sequelize(dbUrl);
+export const sequelize = new Sequelize(dbUrl, {
+    models: [User], // It's correct?
+});
 
 export const initDb = async () => {
     try {
