@@ -14,6 +14,6 @@ export class ExampleController extends Controller {
     @Security('jwt')
     public async getPrivateData(@Request() request: ExpressRequest): Promise<string> {
         return "This is private data, accessible only with valid credentials." +
-            ` Your auth is: ${request.user?.id} and username: ${request.user?.username}`;
+            ` Your user payload is: ${JSON.stringify(request.user)}`;
     }
 }

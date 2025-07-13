@@ -23,7 +23,7 @@ export class User extends Model {
 
     @PrimaryKey
     @AutoIncrement
-    @Column
+    @Column(DataType.INTEGER)
     id: number;
 
     @AllowNull(false)

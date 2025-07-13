@@ -3,6 +3,7 @@ import express, {Application, Request, Response, NextFunction} from 'express';
 import helmet from 'helmet';
 import {RegisterRoutes} from '../build/routes';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
 
 const cors = require('cors');
 
@@ -19,15 +20,8 @@ app.use(express.json());
 /*
     Swagger Configuration
  */
-app.use('/api-docs', swaggerUi.serve);
-app.get('/api-docs', swaggerUi.setup(
-    require('../../build/swagger.json'),
-    {
-        swaggerOptions: {
-            url: '/swagger.json',
-        },
-    }
-))
+const swaggerDocument = require(path.resolve(__dirname, '../build/swagger.json'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 RegisterRoutes(app);
 
@@ -41,4 +35,3 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 export default app;
-

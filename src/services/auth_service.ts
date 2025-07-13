@@ -24,12 +24,3 @@ export async function authenticate(username: string, password: string): Promise<
     const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
     return {token};
 }
-
-/**
- * Verifies a JWT token.
- * @param token
- */
-export function verifyToken(token: string) {
-    return jwt.verify(token, JWT_SECRET);
-}
-
