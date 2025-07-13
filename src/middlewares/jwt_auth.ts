@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET || 'my_secret_key';
 
 /**
  * Middleware to authenticate requests using JWT.
@@ -24,4 +24,3 @@ export function jwtAuthMiddleware(req: Request, res: Response, next: NextFunctio
         return res.status(401).json({message: 'Invalid or expired token'});
     }
 }
-

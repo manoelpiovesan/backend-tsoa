@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import {RegisterRoutes} from '../build/routes';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
+import { errorHandler } from './middlewares/error_handler';
 
 const cors = require('cors');
 
@@ -20,18 +21,18 @@ app.use(express.json());
 /*
     Swagger Configuration
  */
-const swaggerDocument = require(path.resolve(__dirname, '../build/swagger.json'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(
+    require('../../build/swagger.json'),
+    {
+        swaggerOptions: {
+            url: '/swagger.json',
+        },
+    }
+))
 
 RegisterRoutes(app);
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    if (err.status && err.message) {
-        res.status(err.status).json({message: err.message});
-    } else {
-        console.error(err);
-        res.status(500).json({message: 'Internal Server Error'});
-    }
-});
+app.use(errorHandler);
 
 export default app;

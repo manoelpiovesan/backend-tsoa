@@ -11,11 +11,13 @@ export class UserService {
     async createUser(username: string, password: string): Promise<User> {
 
         // Check if the user already exists
-        await this.userExists(username).then(exists => {
-            if (exists) {
-                throw new Error('User already exists');
-            }
-        });
+        const exists = await this.userExists(username);
+        if (exists) {
+            throw {
+                status_code: 400,
+                message: 'User already exists',
+            };
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         return await User.create({username, password: hashedPassword});
@@ -33,4 +35,3 @@ export class UserService {
     }
 
 }
-
