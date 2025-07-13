@@ -1,14 +1,29 @@
 {
   "entryFile": "src/server.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "controllerPathGlobs": [
+    "src/controllers/**/*.ts"
+  ],
   "compilerOptions": {
     "strictNullChecks": true
   },
   "spec": {
     "basePath": "/api/v1",
     "outputDirectory": "build",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Insira o token JWT no formato: Bearer {token}"
+      }
+    },
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ]
   },
   "routes": {
     "basePath": "/api/v1",

@@ -2,7 +2,6 @@ import {Controller, Get, Route, Security, Tags} from "tsoa";
 
 @Tags('Example')
 @Route('/example')
-//@Security('api_key')
 export class ExampleController extends Controller {
 
     @Get('/public')
@@ -11,7 +10,7 @@ export class ExampleController extends Controller {
     }
 
     @Get('/private')
-    @Security('api_key')
+    @Security('BearerAuth')
     public async getPrivateData(): Promise<string> {
         return "This is private data, accessible only with valid credentials.";
     }
