@@ -11,7 +11,11 @@ const dbKind = process.env.DB_KIND || 'postgres';
 const dbUrl = `${dbKind}://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
 
 export const sequelize = new Sequelize(dbUrl, {
-    models: [User], // It's correct?
+    models: [__dirname + '/../models'],
+    modelMatch: (_filename, member) => {
+        return member !== 'default';
+
+    },
 });
 
 export const initDb = async () => {
