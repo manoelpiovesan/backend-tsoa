@@ -18,19 +18,25 @@ export async function expressAuthentication(
     securityName: string,
     scopes?: string[]
 ): Promise<any> {
-
-    /*
-        Verifies if the securityName is 'jwt'.
-        If it is, it uses the jwtAuthMiddleware to authenticate the request.
-     */
     if (securityName === "jwt") {
         return new Promise((resolve, reject) => {
             jwtAuthMiddleware(request, {
                 status: () => ({json: (msg: any) => reject(msg)})
-            } as any, () => resolve((request as any).user));
+            } as any, () => {
+                const user = (request as any).user;
+
+
+                /*
+                    If scopes are provided, check if the user has the required scopes.
+                 */
+                if (scopes && scopes.length > 0) {
+                    if (!user || !user.scopes || !scopes.every(scope => user.scopes.includes(scope))) {
+                        return reject({status: 403, message: 'Access denied: insufficient scopes'});
+                    }
+                }
+                resolve(user);
+            });
         });
     }
-
-
     return Promise.resolve();
 }

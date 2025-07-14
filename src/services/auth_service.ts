@@ -25,10 +25,10 @@ export async function authenticate(username: string, password: string): Promise<
     if (!user) {
         throw invalidCredentialsError;
     }
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = bcrypt.compare(password, user.password);
     if (!valid) {
         throw passwordNotMatchError;
     }
-    const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
+    const token = jwt.sign({id: user.id, username: user.username, scopes: user.scopes}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
     return {token};
 }

@@ -1,7 +1,5 @@
 import {AllowNull, Column, PrimaryKey, Table} from "sequelize-typescript";
 import {AutoIncrement, DataType, Model,} from "sequelize-typescript"
-import {InferAttributes, InferCreationAttributes} from "sequelize";
-
 
 /*
     Explanation of @Table decorator options:
@@ -33,4 +31,8 @@ export class User extends Model {
     @AllowNull(false)
     @Column(DataType.STRING)
     password: string;
+
+    @AllowNull(false)
+    @Column(DataType.JSON)
+    scopes: string[] = ['user']; // Default scope for all users
 }
