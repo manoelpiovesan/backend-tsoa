@@ -1,5 +1,4 @@
 import {Sequelize} from 'sequelize-typescript';
-import {User} from '../models/user';
 
 const dbUser = process.env.DB_USER || 'admin';
 const dbPass = process.env.DB_PASS || 'password';

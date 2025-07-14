@@ -1,5 +1,5 @@
 import {Controller, Get, Route, Security, Tags, Request} from "tsoa";
-import {Request as ExpressRequest} from "express";
+import { KeycloakRequest } from "../middlewares/keycloak_auth";
 
 @Tags('Example')
 @Route('/example')
@@ -11,25 +11,23 @@ export class ExampleController extends Controller {
     }
 
     @Get('/private')
-    @Security('jwt')
-    public async getPrivateData(@Request() request: ExpressRequest): Promise<string> {
-        return "This is private data, accessible only with valid credentials." +
-            ` Your user payload is: ${JSON.stringify(request.user)}`;
+    @Security('keycloak')
+    public async getPrivateData(@Request() request: KeycloakRequest): Promise<string> {
+        return "This is private data, accessible only with valid Keycloak credentials." +
+            ` Your user payload is: ${JSON.stringify(request.keycloakUser)}`;
     }
-
 
     @Get('/admin')
-    @Security('jwt', ['admin'])
-    public async getAdminData(@Request() request: ExpressRequest): Promise<string> {
-        return "This is admin data, accessible only with valid credentials and admin scope." +
-            ` Your user payload is: ${JSON.stringify(request.user)}`;
+    @Security('keycloak', ['admin'])
+    public async getAdminData(@Request() request: KeycloakRequest): Promise<string> {
+        return "This is admin data, accessible only with valid Keycloak credentials and admin role." +
+            ` Your user payload is: ${JSON.stringify(request.keycloakUser)}`;
     }
 
-
     @Get('/user')
-    @Security('jwt', ['user'])
-    public async getUserData(@Request() request: ExpressRequest): Promise<string> {
-        return "This is user data, accessible only with valid credentials and user scope." +
-            ` Your user payload is: ${JSON.stringify(request.user)}`;
+    @Security('keycloak', ['user'])
+    public async getUserData(@Request() request: KeycloakRequest): Promise<string> {
+        return "This is user data, accessible only with valid Keycloak credentials and user role." +
+            ` Your user payload is: ${JSON.stringify(request.keycloakUser)}`;
     }
 }
