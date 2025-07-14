@@ -1,4 +1,4 @@
-### Backend com Typescript
+### TypeScript Backend with TSOA
 
 #### Environment Variables
 
@@ -19,7 +19,7 @@
  docker compose up -d
 ```
 
-### Creating the keycloak database manually
+#### Creating the keycloak database manually
 
 ```shell
 docker exec -it <postgres_container_id> psql -U admin backend_tsoa

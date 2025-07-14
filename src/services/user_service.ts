@@ -1,37 +1,61 @@
-import bcrypt from 'bcryptjs';
-import {User} from '../models/user';
+/**
+ * UserService is now just a set of utilities to work with Keycloak data
+ * Completely removes local user management
+ */
+
+import { KeycloakUser } from '../middlewares/keycloak_auth';
 
 export class UserService {
-    /**
-     * Creates a new user with a hashed password.
-     * @param username - The username of the user.
-     * @param password - The password of the user.
-     * @return {Promise<User>} - A promise that resolves to the created user.
-     */
-    async createUser(username: string, password: string): Promise<User> {
-
-        // Check if the user already exists
-        const exists = await this.userExists(username);
-        if (exists) {
-            throw {
-                status_code: 400,
-                message: 'User already exists',
-            };
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        return await User.create({username, password: hashedPassword});
-    }
-
 
     /**
-     * Verifies if a user exists by username.
-     * @param username - The username to check.
-     * @return {Promise<boolean>} - A promise that resolves to true if the user exists, false otherwise.
+     * Formats Keycloak user data for API response
+     * @param keycloakUser - User data from Keycloak
+     * @returns Formatted object for response
      */
-    async userExists(username: string): Promise<boolean> {
-        const user = await User.findOne({where: {username}});
-        return !!user;
+    formatUserResponse(keycloakUser: KeycloakUser): Record<string, any> {
+        return {
+            id: keycloakUser.id,
+            username: keycloakUser.username,
+            email: keycloakUser.email,
+            firstName: keycloakUser.firstName,
+            lastName: keycloakUser.lastName,
+            fullName: keycloakUser.firstName && keycloakUser.lastName
+                ? `${keycloakUser.firstName} ${keycloakUser.lastName}`
+                : keycloakUser.username,
+            roles: keycloakUser.roles || [],
+            permissions: keycloakUser.scopes || []
+        };
     }
 
+    /**
+     * Checks if the user has a specific role
+     * @param keycloakUser - User data
+     * @param role - Role to check
+     * @returns boolean
+     */
+    hasRole(keycloakUser: KeycloakUser, role: string): boolean {
+        return keycloakUser.roles?.includes(role) || false;
+    }
+
+    /**
+     * Checks if the user is an administrator
+     * @param keycloakUser - User data
+     * @returns boolean
+     */
+    isAdmin(keycloakUser: KeycloakUser): boolean {
+        return this.hasRole(keycloakUser, 'admin') || this.hasRole(keycloakUser, 'administrator');
+    }
+
+    /**
+     * Gets user permissions (scopes + roles)
+     * @param keycloakUser - User data
+     * @returns Array of permissions
+     */
+    getUserPermissions(keycloakUser: KeycloakUser): string[] {
+        const roles = keycloakUser.roles || [];
+        const scopes = keycloakUser.scopes || [];
+
+        // Combine and remove duplicates
+        return [...new Set([...roles, ...scopes])];
+    }
 }

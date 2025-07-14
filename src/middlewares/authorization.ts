@@ -1,42 +1,59 @@
 import express from "express";
-import {jwtAuthMiddleware} from "./jwt_auth";
+import { keycloakAuthMiddleware, KeycloakRequest } from "./keycloak_auth";
 
 
 /**
- * Middleware to authenticate requests using JWT.
- * This function checks if the securityName is 'jwt' and uses the jwtAuthMiddleware to authenticate the request.
- * If authentication is successful, it resolves with the user information.
- * If authentication fails, it rejects with an error message.
+ * Authentication system using ONLY Keycloak
+ * Completely removes the previous JWT system
  *
  * @param request - The Express request object.
- * @param securityName - The name of the security scheme to use (e.g., 'jwt').
- * @param scopes - Optional scopes for the security scheme (not used in this implementation).
- * @returns A promise that resolves with user information or rejects with an error message.
+ * @param securityName - The security scheme name ('keycloak').
+ * @param scopes - Scopes/roles required to access the endpoint.
+ * @returns A promise that resolves with user information or rejects with error.
  */
 export async function expressAuthentication(
     request: express.Request,
     securityName: string,
     scopes?: string[]
 ): Promise<any> {
-    if (securityName === "jwt") {
+
+    if (securityName === "keycloak") {
         return new Promise((resolve, reject) => {
-            jwtAuthMiddleware(request, {
-                status: () => ({json: (msg: any) => reject(msg)})
+            keycloakAuthMiddleware(request as KeycloakRequest, {
+                status: (code: number) => ({
+                    json: (msg: any) => reject({
+                        status: code,
+                        message: msg.message || 'Authentication error'
+                    })
+                })
             } as any, () => {
                 const user = (request as any).user;
 
+                console.log('🔐 Verifying Keycloak authentication:', {
+                    username: user?.username,
+                    requiredScopes: scopes,
+                    userScopes: user?.scopes
+                });
 
-                /*
-                    If scopes are provided, check if the user has the required scopes.
-                 */
+                // Check scopes if provided
                 if (scopes && scopes.length > 0) {
                     if (!user || !user.scopes || !scopes.every(scope => user.scopes.includes(scope))) {
-                        return reject({status: 403, message: 'Access denied: insufficient scopes'});
+                        return reject({
+                            status: 403,
+                            message: 'Access denied: insufficient permissions',
+                            required: scopes,
+                            current: user?.scopes || []
+                        });
                     }
                 }
+
                 resolve(user);
             });
         });
     }
-    return Promise.resolve();
+
+    return Promise.reject({
+        status: 401,
+        message: `Security scheme '${securityName}' not supported. Use 'keycloak'.`
+    });
 }

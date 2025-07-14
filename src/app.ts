@@ -1,10 +1,14 @@
+import {keycloakConfig} from "./utils/keycloak_config";
+
 require('dotenv').config();
 import express, {Application} from 'express';
 import helmet from 'helmet';
 import {RegisterRoutes} from '../build/routes';
 import swaggerUi from 'swagger-ui-express';
-import { errorHandler } from './middlewares/error_handler';
+import {errorHandler} from './middlewares/error_handler';
 import cors from 'cors';
+import session from 'express-session';
+import Keycloak from 'keycloak-connect';
 
 const app: Application = express();
 
@@ -18,11 +22,36 @@ const app: Application = express();
 
     Express.json: This middleware parses incoming requests with JSON payloads.
     It is based on body-parser and is used to handle JSON data in requests.
-
  */
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+/*
+    Session Management: This middleware is used to manage user sessions.
+    It stores session data on the server side and uses cookies to identify
+    the session on the client side.
+ */
+const sessionStore = new session.MemoryStore();
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'default_secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    },
+    store: sessionStore
+}))
+
+/*
+    Keycloak Configuration
+ */
+const keycloak = new Keycloak({
+    store: sessionStore
+}, keycloakConfig);
+app.use(keycloak.middleware());
 
 /*
     Swagger Configuration
