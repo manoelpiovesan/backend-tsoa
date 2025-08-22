@@ -1,4 +1,4 @@
-### TypeScript Backend with TSOA   
+### Simple TypeScript Backend with TSOA   
 
 #### Environment Variables
 
